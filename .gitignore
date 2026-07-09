@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+.venv/
+
+# Docker
+repo_data/
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,22 @@
+services:
+  doc-indexer:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        # ── GPU acceleration ────────────────────────────────────────
+        #  Overridden by compose.cuda.yml / compose.rocm.yml
+        GPU_RUNTIME: ""
+    image: ai-document-indexer-mcp
+    container_name: ai-document-indexer-mcp
+    ports:
+      - "8003:8000"
+    environment:
+      # ── Required: single source-of-truth documentation repo ─────────
+      - REPO_URL=https://github.com/Xanir/project-documents.git
+    volumes:
+      # Persist the cloned repo and the ChromaDB index across restarts
+      - C:/Code/ProjectDocumentCache/repo:/data/repo
+      - C:/Code/ProjectDocumentCache/db:/data/chroma_db
+    env_file:
+      - C:/Code/creds/github-pat.env

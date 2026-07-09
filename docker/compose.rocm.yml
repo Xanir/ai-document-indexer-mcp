@@ -1,0 +1,34 @@
+# ── AMD ROCm GPU override (WSL2 Architecture) ─────────────────────────
+#  Usage:  docker compose -f compose.yml -f compose.rocm.yml up --build
+#
+#  Requires the librocdxg translation bridge installed on the WSL2 host.
+#  Core ROCm libraries are natively built into the container image.
+services:
+  doc-indexer:
+    build:
+      args:
+        GPU_RUNTIME: "rocm"
+
+    # ── Memory & Security Flags (Required for ROCm) ───────────────────
+    ipc: host
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+
+    devices:
+      # ── WSL2 Virtualized GPU Device ─────────────────────────────────
+      # /dev/kfd and /dev/dri are for native Linux. WSL uses DXCore.
+      - /dev/dxg:/dev/dxg
+
+    volumes:
+      # ── Data persistence ────────────────────────────────────────────
+      - C:/Code/ProjectDocumentCache/repo:/data/repo
+      - C:/Code/ProjectDocumentCache/db:/data/chroma_db
+
+      # ── WSL2 Paravirtual Translation Layer ──────────────────────────
+      # We mount ONLY the specific files needed for the bridge so we
+      # do not overwrite the container's internal /opt/rocm libraries.
+      - /usr/lib/wsl/lib/libdxcore.so:/usr/lib/libdxcore.so:ro
+      - /opt/rocm/lib/librocdxg.so:/usr/lib/librocdxg.so:ro
+      - /opt/rocm/share/rocdxg/dids.conf:/usr/share/rocdxg/dids.conf:ro

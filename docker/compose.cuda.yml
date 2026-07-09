@@ -1,0 +1,15 @@
+# ── NVIDIA GPU override ────────────────────────────────────────────────
+#  Usage:  docker compose -f compose.yml -f compose.cuda.yml up --build
+#  Requires nvidia-container-toolkit on the Docker host.
+services:
+  doc-indexer:
+    build:
+      args:
+        GPU_RUNTIME: "cuda"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
